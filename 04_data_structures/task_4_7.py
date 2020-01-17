@@ -10,3 +10,7 @@
 '''
 
 mac = 'AAAA:BBBB:CCCC'
+output = ''
+for item in mac.split(':'):
+    output += f"{int(item, 16):b}"
+print(output)

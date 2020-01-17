@@ -10,6 +10,8 @@
 Ограничение: Все задания надо выполнять используя только пройденные темы.
 
 '''
+from builtins import sorted
 
 command1 = 'switchport trunk allowed vlan 1,2,3,5,8'
 command2 = 'switchport trunk allowed vlan 1,3,8,9'
+print(sorted(list(set(command1[30:].split(',')) & set(command2[30:].split(',')))))
