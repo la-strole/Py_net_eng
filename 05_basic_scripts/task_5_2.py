@@ -19,3 +19,14 @@ Mask:
 
 Ограничение: Все задания надо выполнять используя только пройденные темы.
 '''
+address = input()
+ip = address[:-3].split('.')
+mask = f"{'1'*int(address[-2:]):<032}"
+print(f'''Network:
+{int(ip[0]):<10} {int(ip[1]):<10} {int(ip[2]):<10} {int(ip[3]):<10}
+{int(ip[0]):08b} {int(ip[1]):08b} {int(ip[2]):08b} {int(ip[3]):08b}
+mask:
+/{address[-2:]}
+{int(mask[:8],2):<10} {int(mask[8:16],2):<10} {int(mask[16:24],2):<10} {int(mask[24:32],2):<10}
+{mask[:8]:<10} {mask[8:16]:<10} {mask[16:24]:<10} {mask[24:32]:<10}
+''')
