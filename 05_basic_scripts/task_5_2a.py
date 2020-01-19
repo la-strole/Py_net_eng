@@ -32,15 +32,15 @@ Mask:
 '''
 address = input()
 ip = address[:-3].split('.')
-ip_bin = (f"{int(ip[0]):<08b}{int(ip[1]):<08b}{int(ip[2]):<08b}{int(ip[3]):<08b}"[:32-int(address[-2:])]) + '0'*(32-int(address[-2:]))
-mask = f"{'1'*int(address[-2:]):>032}"
+ip_bin = (f"{int(ip[0]):>08b}{int(ip[1]):>08b}{int(ip[2]):>08b}{int(ip[3]):>08b}"[:int(address[-2:])-32]) + '0'*(32-int(address[-2:]))
+mask = f"{'1'*int(address[-2:]):<032}"
 
 print(f"""
       Network:
-      {int(ip_bin[:8]):<10} {int(ip_bin[8:16]):<10} {int(ip_bin[16:24]):<10} {int(ip_bin[24:32]):<10}
+      {int(ip_bin[:8], 2):<10} {int(ip_bin[8:16], 2):<10} {int(ip_bin[16:24], 2):<10} {int(ip_bin[24:32], 2):<10}
       {ip_bin[:8]:<10} {ip_bin[8:16]:<10} {ip_bin[16:24]:<10} {ip_bin[24:32]:<10}
       
       Mask:
-      {address[:-2:]}
-      {int(mask[:8], 10):<10} {int(mask[8:16], 10):<10} {int(mask[16:24], 10):<10} {int(mask[24:32], 10):<10}
+      /{address[-2:]}
+      {int(mask[:8], 2):<10} {int(mask[8:16], 2):<10} {int(mask[16:24], 2):<10} {int(mask[24:32], 2):<10}
       {mask[:8]:<10} {mask[8:16]:<10} {mask[16:24]:<10} {mask[24:32]:<10} """)
