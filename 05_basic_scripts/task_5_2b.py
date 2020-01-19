@@ -10,7 +10,7 @@
 
 '''
 from sys import argv
-K
+
 address = argv[1]
 ip = address[:-3].split('.')
 ip_bin = (f"{int(ip[0]):>08b}{int(ip[1]):>08b}{int(ip[2]):>08b}{int(ip[3]):>08b}"[:int(address[-2:]) - 32]) + '0' * (
