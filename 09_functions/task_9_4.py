@@ -35,3 +35,23 @@ def ignore_command(command, ignore):
     * False - если нет
     '''
     return any(word in command for word in ignore)
+
+
+def convert_config_to_dict(config_filename: str):
+    """convert file to dictionary - keys are first-level comand - values are lower level comands
+    without words from ignore list"""
+    with open(config_filename) as file:
+        final_dict = dict()
+        for line in file:
+            line = line.strip('\n')
+            if ignore_command(line, ignore) or line.startswith('!') or len(line) == 0:
+                continue
+            elif not line.startswith(' '):
+                primary_command = line
+                final_dict[primary_command] = []
+            else:
+                final_dict[primary_command].append(line.strip())
+    return final_dict
+
+
+print(convert_config_to_dict('config_sw1.txt'))

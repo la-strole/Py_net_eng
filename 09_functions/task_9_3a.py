@@ -23,3 +23,41 @@
 
 Ограничение: Все задания надо выполнять используя только пройденные темы.
 '''
+from typing import Dict
+
+
+def configure_function(config_file_name):
+    """read from conf file
+    """
+    dict_access: Dict[str, int] = dict()
+    dict_trunk: Dict = dict()
+    int_block = dict()
+    with open(config_file_name, 'r') as file:
+        while True:
+            line = file.readline().strip()
+            if line.startswith('interface'):
+                interface_name = line.split()[1]
+                int_block[interface_name] = []
+                line = file.readline().strip()
+                while line != '!':
+                    int_block[interface_name].append(line)
+                    line = file.readline().strip()
+            else:
+                if line == 'end':
+                    break
+        for key in int_block.keys():
+            key_line = ','.join(int_block[key])
+            if 'switchport mode access' in key_line:
+                if 'switchport access vlan' in key_line:
+                    dict_access[key] = int(int_block[key][1].split()[-1])
+                else:
+                    dict_access[key] = 1
+            elif 'switchport trunk' in key_line:
+                if 'switchport trunk allowed vlan' in key_line:
+                    dict_trunk[key] = [int(x) for x in int_block[key][1].split()[-1].split(',')]
+                else:
+                    dict_trunk[key] = 'all'
+    return dict_access, dict_trunk
+
+
+print(configure_function('config_sw1.txt'))

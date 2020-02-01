@@ -22,3 +22,22 @@
 Ограничение: Все задания надо выполнять используя только пройденные темы.
 '''
 
+
+def configure_function(config_file_name):
+    """read from conf file
+    """
+    dict_access = dict()
+    dict_trunk = dict()
+    conf = (dict_access, dict_trunk)
+    with open(config_file_name, 'r') as file:
+        lines = file.read().split('\n')
+        for line_num in range(len(lines)):
+            if 'switchport access vlan' in lines[line_num]:
+                dict_access[lines[line_num - 2].split()[1]] = int(lines[line_num].split()[-1])
+            elif 'switchport trunk allowed vlan' in lines[line_num]:
+                dict_trunk[lines[line_num - 2].split()[1]] = [int(x) for x in lines[line_num].split()[-1].split(',')]
+    return conf
+
+
+print(configure_function('config_sw2.txt'))
+
