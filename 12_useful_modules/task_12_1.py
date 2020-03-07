@@ -16,25 +16,20 @@
 '''
 
 
-def ping_ip_addresses(ip_list: list):
-    """ return tuple of success and unsuccess ping of addresses from address list"""
-    import ipaddress
+def ping_ip_addresses(ip_list):
+    """ return tuple - accessable ip address/unaccessable ip address """
     import subprocess
-    ret_tuple = ([], [])
+    ret_value = ([], [])
     for ip in ip_list:
-        try:
-            ipaddress.ip_address(ip)
-            result = subprocess.run(['ping', '-c', '2', ip], stdout=subprocess.PIPE, encoding='utf8')
-            if '100% packet loss' in result.stdout:
-                ret_tuple[1].append(ip)
-            else:
-                ret_tuple[0].append(ip)
-        except ValueError:
-            print(f"error with value {ip}. It seems to be not an ip address")
-            return -1
-    return ret_tuple
+        result = subprocess.run(['ping', '-n', '3', ip], stdout=subprocess.PIPE, encoding='866')
+        if '100% потерь' in result.stdout:
+            ret_value[0].append(ip)
+        else:
+            ret_value[1].append(ip)
+    return ret_value
 
 
 if __name__ == "__main__":
-    ip_addresses = ['127.0.0.1', '1.1.1.1', '8.8.8.8', '1.2.3.4', '172.0.0.1']
-    print(ping_ip_addresses(ip_addresses))
+    from task_12_2 import convert_ranges_to_ip_list
+    ip_set = ['127.0.0.1', '172.0.0.1-5']
+    print(ping_ip_addresses(convert_ranges_to_ip_list(ip_set)))
