@@ -21,7 +21,7 @@ Cгенерировать топологию, которая соответст�
 
 В словаре, который возвращает функция create_network_map, не должно быть дублей.
 
-С помощью функции draw_topology из файла draw_network_graph.py нарисовать схему на основании топологии, полученной с помощью функции create_network_map.
+С помощью функции  из файла draw_network_graph.py нарисовать схему на основании топологии, полученной с помощью функции create_network_map.
 Результат должен выглядеть так же, как схема в файле task_11_2a_topology.svg
 
 
@@ -41,3 +41,23 @@ Cгенерировать топологию, которая соответст�
 
 '''
 
+
+def create_network_map(filenames):
+    """" filenames - list of filenames - return dictionary of network connections between nodes from filename"""
+    dict_connect = {}
+    for file in filenames:
+        with open(file) as file:
+            source_device = 'unassigned_device'
+            for line in file:
+                if 'show' in line:
+                    source_device = line[:line.find('show') - 1]
+                elif line.startswith('R') or line.startswith('SW'):
+                    line = line.split()
+                    dict_connect[(source_device, line[1]+line[2])] = (line[0], line[-2]+line[-1])
+    return dict_connect
+
+
+if __name__ == "__main__":
+    from draw_network_graph import draw_topology
+    filenames = ['sh_cdp_n_r1.txt', 'sh_cdp_n_r2.txt', 'sh_cdp_n_r3.txt', 'sh_cdp_n_sw1.txt']
+    print(create_network_map(filenames))

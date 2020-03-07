@@ -30,18 +30,22 @@ R6           Fa 0/2          143           R S I           2811       Fa 0/0
 
 
 def parse_cdp_neighbors(command_output):
-    """ return dictionary of cdp neighbors - command output - line of sh cdp neighbors command"""
-    d = {}
+    """" return dictionary of connections. command output - line from file"""
+    line_list = []
     source_device = 'unassigned'
     for line in command_output:
         if 'show' in line:
-            source_device = line[:line.find('show') - 1]
-        elif line.startswith('R') or line.startswith('SW'):
-            line = line.split()
-            d[(source_device, line[1]+line[2])] = (line[0], line[-2]+line[-1])
+            source_device = line[:2]
+        else:
+            if line.startswith('R'):
+                line_list.append(line.split())
+    d = {}
+    for item in line_list:
+        d[(source_device, item[1] + item[2])] = (item[0], item[8] + item[9])
     return d
 
 
 if __name__ == "__main__":
-    with open('sh_cdp_n_sw1.txt') as file:
-        print(parse_cdp_neighbors(file.readlines()))
+    with open('sh_cdp_n_r1.txt') as file:
+        command_output = file.readlines()
+        print(parse_cdp_neighbors(command_output))
