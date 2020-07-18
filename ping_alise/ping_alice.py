@@ -16,10 +16,16 @@ def ping_alice(alice_ip, router_ip, packet_count, trust_internet_address='google
             line_ping = result_ping_internet.stdout.split()
             internet_packet_loss = line_ping[-10]
             internet_delay = str(line_ping[-2])
+            try:
+                int(internet_packet_loss[:-1])
+                float(internet_delay.split('/')[1])
+            except ValueError:
+                ret_string = f'internet_value_error', {current_time}, {internet_packet_loss[:-1]}
+                return ret_string
             if int(internet_packet_loss[:-1]) > 10:
                 ret_string = f'high_internet_loss, {current_time}, {internet_packet_loss}\n'
                 return ret_string
-            elif float(internet_delay.split('/')[1]) > 40:
+            elif float(internet_delay.split('/')[1]) > 60:
                 ret_string = f'high_internet_delay, {current_time}, {internet_delay}\n'
                 return ret_string
             else:
@@ -29,10 +35,16 @@ def ping_alice(alice_ip, router_ip, packet_count, trust_internet_address='google
                     line_ping = result_ping_alice.stdout.split()
                     alice_packet_loss = line_ping[-10]
                     alice_delay = str(line_ping[-2])
+                    try:
+                        int(alice_packet_loss[:-1])
+                        float(alice_delay.split('/')[1])
+                    except ValueError:
+                        ret_string = f'alice_value_error', {current_time}, {alice_packet_loss[:-1]}
+                        return ret_string
                     if int(alice_packet_loss[:-1]) > 10:
                         ret_string = f'high_alice_loss, {current_time}, {alice_packet_loss}\n'
                         return ret_string
-                    elif float(alice_delay.split('/')[1]) > 40:
+                    elif float(alice_delay.split('/')[1]) > 60:
                         ret_string = f'high_alice_delay, {current_time}, {alice_delay}\n'
                         return ret_string
                     else:
