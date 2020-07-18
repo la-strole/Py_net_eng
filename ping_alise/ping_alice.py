@@ -54,7 +54,7 @@ def main():
     router_ip = ipaddress.ip_address('192.168.1.1')
     packet_count = 3
     trust_internet_address = 'google.com'
-    time_period_sec = 600
+    time_period_sec = 60*60*3
     start = time.time()
     while True:
         with open('/home/zzz/Downloads/alice_ping.csv', 'a') as file:
