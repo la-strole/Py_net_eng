@@ -1,3 +1,4 @@
+#! /usr/bin/python3
 import subprocess
 import ipaddress
 import time
@@ -63,5 +64,5 @@ def main():
             break
 
 
-if __name__ == "__name__":
+if __name__ == "__main__":
     main()
