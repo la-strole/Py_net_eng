@@ -4,7 +4,8 @@ import ipaddress
 import time
 
 
-def ping_alice(alice_ip, router_ip, packet_count, trust_internet_address='google.com'):
+def ping_alice(alice_ip, router_ip, packet_count, max_wifi_delay, max_internet_delay, loss_persent,
+               trust_internet_address='google.com'):
     """ alice_ip - yandex_station ip, ping router and alice return csv values"""
     current_time = time.strftime("%D, %H:%M:%S", time.localtime())
     result_ping_router = subprocess.run(['ping', f'{router_ip}', '-c', f'{packet_count}'], stdout=subprocess.PIPE,
@@ -20,12 +21,12 @@ def ping_alice(alice_ip, router_ip, packet_count, trust_internet_address='google
                 int(internet_packet_loss[:-1])
                 float(internet_delay.split('/')[1])
             except ValueError:
-                ret_string = f'internet_value_error', {current_time}, {internet_packet_loss[:-1]}
+                ret_string = f'internet_value_error, {current_time}, {internet_packet_loss[:-1]}\n'
                 return ret_string
-            if int(internet_packet_loss[:-1]) > 10:
+            if int(internet_packet_loss[:-1]) > loss_persent:
                 ret_string = f'high_internet_loss, {current_time}, {internet_packet_loss}\n'
                 return ret_string
-            elif float(internet_delay.split('/')[1]) > 60:
+            elif float(internet_delay.split('/')[1]) > max_internet_delay:
                 ret_string = f'high_internet_delay, {current_time}, {internet_delay}\n'
                 return ret_string
             else:
@@ -39,12 +40,12 @@ def ping_alice(alice_ip, router_ip, packet_count, trust_internet_address='google
                         int(alice_packet_loss[:-1])
                         float(alice_delay.split('/')[1])
                     except ValueError:
-                        ret_string = f'alice_value_error', {current_time}, {alice_packet_loss[:-1]}
+                        ret_string = f'alice_value_error, {current_time}, {alice_packet_loss[:-1]}\n'
                         return ret_string
-                    if int(alice_packet_loss[:-1]) > 10:
+                    if int(alice_packet_loss[:-1]) > loss_persent:
                         ret_string = f'high_alice_loss, {current_time}, {alice_packet_loss}\n'
                         return ret_string
-                    elif float(alice_delay.split('/')[1]) > 60:
+                    elif float(alice_delay.split('/')[1]) > max_wifi_delay:
                         ret_string = f'high_alice_delay, {current_time}, {alice_delay}\n'
                         return ret_string
                     else:
@@ -66,11 +67,15 @@ def main():
     router_ip = ipaddress.ip_address('192.168.1.1')
     packet_count = 3
     trust_internet_address = 'google.com'
-    time_period_sec = 60*60*3
+    normal_delay_wifi = 100
+    normal_delay_internet = 150
+    max_persent_loss = 10
+    time_period_sec = 60*60*5
     start = time.time()
     while True:
         with open('/home/zzz/Downloads/alice_ping.csv', 'a') as file:
-            file.write(ping_alice(alice_ip, router_ip, packet_count, trust_internet_address))
+            file.write(ping_alice(alice_ip, router_ip, packet_count, normal_delay_wifi, normal_delay_internet,
+                                  max_persent_loss, trust_internet_address))
         time.sleep(120)
         if time.time() > start + time_period_sec:
             break
