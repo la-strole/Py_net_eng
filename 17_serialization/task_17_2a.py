@@ -32,3 +32,50 @@
 Проверить работу параметра save_to_filename и записать итоговый словарь в файл topology.yaml.
 
 '''
+
+import yaml
+import re
+
+
+def parse_cdp_neighbors(line: str):
+    """ line - result of sh cdp neighbors. return dict"""
+
+    local_device = re.search(r'\w+', line).group()
+    table = line[re.search(r'Device', line).span()[0]:]
+    table = re.sub(r' {2,}', ',', table)
+    table = table.split('\n')
+    bigger_dict = dict()
+    for item in table[1:]:
+        if item:
+            final = item.split(',')
+            bigger_dict[final[1]] = {final[0]: final[5]}
+        else:
+            continue
+    return {local_device: bigger_dict}
+
+
+def generate_topology_from_cdp(list_of_files: list, save_to_filename=None):
+    main_dictionary = dict()
+    for file_name in list_of_files:
+        with open(file_name) as file:
+            line = file.read()
+            ret_value = parse_cdp_neighbors(line)
+            main_dictionary.update(ret_value)
+    if save_to_filename:
+        with open(save_to_filename + '.yaml', 'w') as f:
+            yaml.dump(main_dictionary, f)
+    print(main_dictionary)
+
+
+file_list = """* sh_cdp_n_sw1.txt
+* sh_cdp_n_r1.txt
+* sh_cdp_n_r2.txt
+* sh_cdp_n_r3.txt
+* sh_cdp_n_r4.txt
+* sh_cdp_n_r5.txt
+* sh_cdp_n_r6.txt"""
+
+file_list = [item for item in file_list.split() if item != '*']
+generate_topology_from_cdp(file_list, 'new')
+
+
