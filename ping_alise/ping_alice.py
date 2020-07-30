@@ -70,13 +70,13 @@ def main():
     normal_delay_wifi = 100
     normal_delay_internet = 150
     max_persent_loss = 10
-    time_period_sec = 60*60*5
+    time_period_sec = 60 * 60 * 7
     start = time.time()
     while True:
         with open('/home/zzz/Downloads/alice_ping.csv', 'a') as file:
             file.write(ping_alice(alice_ip, router_ip, packet_count, normal_delay_wifi, normal_delay_internet,
                                   max_persent_loss, trust_internet_address))
-        time.sleep(120)
+        time.sleep(60)
         if time.time() > start + time_period_sec:
             break
 
