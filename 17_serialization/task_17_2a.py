@@ -77,5 +77,3 @@ file_list = """* sh_cdp_n_sw1.txt
 
 file_list = [item for item in file_list.split() if item != '*']
 generate_topology_from_cdp(file_list, 'new')
-
-
