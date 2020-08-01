@@ -14,7 +14,7 @@ def telnet_with_router(ip, commands: list, sleep_delay=4):
     t.read_until(b'Password: ', timeout=5)
     t.write(b'ithimaniso\n')
     t.read_until(b'(config)>')
-    print('authentication successful\n')
+    print('authentication successful')
     for command in commands:
         t.write(command.encode('utf-8'))
         time.sleep(sleep_delay)
@@ -49,6 +49,7 @@ def take_arp_table(string):
 
 def ping_remote_hosts(ip_list: list):
     return_dict = {}
+    #command = [f'tools ping {ip} count 10\n' for ip in ip_list]
     for ip in ip_list:
         command = f'tools ping {ip} count 10\n'
         print(f'ping remote host, ip ={ip}')
@@ -57,7 +58,7 @@ def ping_remote_hosts(ip_list: list):
                              r'(?P<delay>\d+.+\d+)')
         result = list(re.findall(pattern, output)[0])
         if result:
-            result[0][1] = result[1].split('/')
+            result[1] = result[1].split('/')
             return_dict[ip] = result
         else:
             return_dict[ip] = 'None'
@@ -83,4 +84,6 @@ if __name__ == '__main__':
             file.write(','.join(string) + '\n')
     # dictionary keys - mac, values - ip
     arp_table = take_arp_table(output)
-    print(ping_remote_hosts([arp_table[mac] for mac in mac_addresses.values()]))
+    ping_result = ping_remote_hosts([arp_table[mac] for mac in mac_addresses.values()])
+
+#TODO for every ping close and establish telnet connection - it's ugly
