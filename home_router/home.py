@@ -6,16 +6,20 @@ import re
 
 def telnet_with_router(ip, commands: list, sleep_delay=4):
     """ telnet session with router"""
+    print(f'telnet connection to remote server ip = {ip}')
     t = telnetlib.Telnet(str(ip))
+    print(f'telnet connection successful\nauthentication..')
     t.read_until(b'Login: ', timeout=5)
     t.write(b'admin\n')
     t.read_until(b'Password: ', timeout=5)
     t.write(b'ithimaniso\n')
     t.read_until(b'(config)>')
+    print('authentication successful\n')
     for command in commands:
         t.write(command.encode('utf-8'))
         time.sleep(sleep_delay)
     t.write(b'exit\n')
+    print(f'close telnet connection to server ip = {ip}')
     out = t.read_very_eager()
     return out.decode('utf-8')
 
@@ -51,13 +55,15 @@ def ping_remote_hosts(ip_list: list):
         output = telnet_with_router(router_ip, [command], sleep_delay=20)
         pattern = re.compile(r'(?P<percent_loss>\d+)(?:%.+\n.+\n.+max = )'
                              r'(?P<delay>\d+.+\d+)')
-        result = re.findall(pattern, output)
+        result = list(re.findall(pattern, output)[0])
         if result:
-            result[1] = result[1].split('/')
+            result[0][1] = result[1].split('/')
             return_dict[ip] = result
         else:
             return_dict[ip] = 'None'
     return return_dict
+
+
 if __name__ == '__main__':
     router_ip = ipaddress.ip_address('192.168.1.1')
     mac_addresses = {'yandex_station': 'd4:12:43:0e:67:71',
