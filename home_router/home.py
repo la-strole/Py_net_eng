@@ -2,7 +2,7 @@ import telnetlib
 import time
 import ipaddress
 import re
-
+import math
 
 def telnet_with_router(ip, commands: list, sleep_delay=4):
     """ telnet session with router"""
@@ -47,22 +47,42 @@ def take_arp_table(string):
     return dict(arp_table)
 
 
-def ping_remote_hosts(ip_list: list):
+def ping_remote_hosts(ip_list: list, count_ping_packet=30):
     return_dict = {}
-    #command = [f'tools ping {ip} count 10\n' for ip in ip_list]
-    for ip in ip_list:
-        command = f'tools ping {ip} count 10\n'
-        print(f'ping remote host, ip ={ip}')
-        output = telnet_with_router(router_ip, [command], sleep_delay=20)
-        pattern = re.compile(r'(?P<percent_loss>\d+)(?:%.+\n.+\n.+max = )'
-                             r'(?P<delay>\d+.+\d+)')
-        result = list(re.findall(pattern, output)[0])
-        if result:
-            result[1] = result[1].split('/')
-            return_dict[ip] = result
-        else:
-            return_dict[ip] = 'None'
-    return return_dict
+    command = [f'tools ping {ip} count {count_ping_packet}\n' for ip in ip_list]
+    print(f'ping remote host')
+    output = telnet_with_router(router_ip, command, sleep_delay=20)
+    if output:
+        result = re.compile(r'(?:.+from (\d+\.\d+\.\d+\.\d+).+time=(\d+\.\d{2}) ms)')
+        out = re.findall(result, output)
+        for item in out:
+            if item[0] not in return_dict.keys():
+                return_dict[item[0]] = [item[1]]
+            else:
+                return_dict[item[0]].append(item[1])
+        return return_dict
+    else:
+        return ValueError
+
+
+def ping_delay_analyze(results: list):
+    # sort list
+    sorted_results = sorted([float(x) for x in results])
+    count_receive = len(sorted_results)
+    # count - global from main - count of ping packets
+    packet_loss_percent = count_receive / count
+    if packet_loss_percent > 0.3:
+        print(f'packet loss = {packet_loss_percent*100} %')
+        return -1
+    # TODO hard mistakes analyze here (before math exp etc)
+    upn = {10: 0.41, 15: 0.34, 20: 0.3, 30: 0.26, 100: 0.2}
+    list_round = [abs(item-count_receive) for item in sorted(upn.keys())]
+    most_close_upn = upn[sorted(upn.keys())[list_round.index(min(list_round))]]
+
+    criteria1_hard_mistake = sorted_results[1] - sorted_results[0]
+
+    number_of_discret = math.floor(1 + 3.2 * math.log10(count_receive))
+    width_number = sorted_results[-1] - sorted_results[0]
 
 
 if __name__ == '__main__':
@@ -84,6 +104,6 @@ if __name__ == '__main__':
             file.write(','.join(string) + '\n')
     # dictionary keys - mac, values - ip
     arp_table = take_arp_table(output)
-    ping_result = ping_remote_hosts([arp_table[mac] for mac in mac_addresses.values()])
-
-#TODO for every ping close and establish telnet connection - it's ugly
+    count = 30
+    ping_result = ping_remote_hosts([arp_table[mac] for mac in mac_addresses.values()], count)
+    print(ping_result)
