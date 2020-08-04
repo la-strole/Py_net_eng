@@ -113,14 +113,15 @@ def ping_delay_analyze(results: list, count):
         # delete hard mistakes
         try:
             while True:
-                criteria1_hard_mistake_min = (sorted_results[1] - sorted_results[0]) / (sorted_results[-1] - sorted_results[0])
+                criteria1_hard_mistake_min = (sorted_results[1] - sorted_results[0]) / (
+                        sorted_results[-1] - sorted_results[0])
                 if criteria1_hard_mistake_min > most_close_upn:
                     sorted_results.pop(0)
                 else:
                     break
             while True:
                 criteria1_hard_mistake_max = (sorted_results[-1] - sorted_results[-2]) / (
-                            sorted_results[-1] - sorted_results[0])
+                        sorted_results[-1] - sorted_results[0])
                 if criteria1_hard_mistake_max > most_close_upn:
                     sorted_results.pop(-1)
                 else:
@@ -164,13 +165,38 @@ def ping_delay_analyze(results: list, count):
         return -1
 
 
+def key_from_value(dictionary: dict, value):
+    """return key from dictionary's value"""
+    if value in dictionary.values():
+        output = [k for k, v in dictionary.items() if v == value]
+        return output
+    else:
+        print(f'value not in dictionary {dictionary} values')
+        return -1
+
+
+def define_rssi_for_hosts(output):
+    """ parse output for rssi. return dictionary [mac] = rssi"""
+    rssi_dict = re.findall(r'mac: ((?:\w{2}:){5}\w{2}).+?rssi: -(\d+)', output, re.DOTALL)
+    if rssi_dict:
+        try:
+            return dict(rssi_dict)
+        except TypeError:
+            print(f'error in define_rssi_for_host function with dict({rssi_dict})')
+            return -1
+    else:
+        return -1
+
+def find_list_of_better_channel_numbers(current_channel, neighbor_networks, current_delay, currenr_rssi):
+    pass
+    # TODO write here list of better channel numbers and try to change channel number -if rssi or ping dalay would be
+    # worse - restore old configuration
 if __name__ == '__main__':
     router_ip = ipaddress.ip_address('192.168.1.1')
-    #TODO replace keys - values to dispaly human name in ping result at the end
     mac_addresses = {'d4:12:43:0e:67:71': 'yandex_station',
-                     'Nata_notebook': '28:e3:47:cd:6e:0d',
-                     'My_notebook': '20:68:9d:46:22:c3',
-                     'Nata_smartphone': '38:a4:ed:64:74:b5'}
+                     '28:e3:47:cd:6e:0d': 'Nata_notebook',
+                     '20:68:9d:46:22:c3': 'My_notebook',
+                     '38:a4:ed:64:74:b5': 'Nata_smartphone'}
 
     command_list = ['show site-survey WifiMaster0\n',
                     'show associations\n',
@@ -178,6 +204,13 @@ if __name__ == '__main__':
                     'show interface\n']
 
     output = (telnet_with_router(router_ip, command_list))
+    # define rssi for each host in arp table
+    rssi = define_rssi_for_hosts(output)
+    if rssi == -1:
+        print('error with define rssi')
+    else:
+        for key in rssi.keys():
+            print(f'{mac_addresses[key]} = {rssi[key]} rssi')
     neighbor_networks = take_networks_info(output)
     # define dictionary with neighbor networks - d[channel_number] = ['n','n'...], n - quality of signal
     if neighbor_networks != -1:
@@ -192,15 +225,16 @@ if __name__ == '__main__':
         print(f'error im main section with neighbor_networks. output = {output}')
     # dictionary keys - mac, values - ip
     arp_table = take_arp_table(output)
-    print(f'arp table = {arp_table}')
     # define current channel number
     pattern_channel = re.compile(r'channel: (\d+)')
     current_channel = re.findall(pattern_channel, output)[0]
     print(f'current channel number = {current_channel}')
-    # deifine number of icmp packets to ping remote hosts
+    # define number of icmp packets to ping remote hosts
     count = 30
-    ping_result = ping_remote_hosts(set([arp_table[mac] for mac in mac_addresses.values() if mac in arp_table.keys()]),
+    ping_result = ping_remote_hosts(set([arp_table[mac] for mac in mac_addresses.keys() if mac in arp_table.keys()]),
                                     router_ip, count)
-    print(ping_result)
     for ip in ping_result.keys():
-        print(f'expected value = {ping_delay_analyze(ping_result[ip], count)}')
+        print(f'expected value {mac_addresses[key_from_value(arp_table, ip)[0]]} = '
+              f'{round(ping_delay_analyze(ping_result[ip], count), 2)}')
+    # if yandex station and my notebook rssi >70 and expected value > 100 ms -> time to try another channel number
+    # TODO write here code for this condition
