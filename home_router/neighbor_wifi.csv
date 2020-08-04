@@ -1,14 +1,13 @@
 SSID name,MAC address,Channel number,Mode,Quality
 Network,f0:7d:68:8e:e8:98,1,11b/g/n,55
 ser_man,78:11:dc:53:ac:96,11,11b/g/n,50
-TP-LINK_53DC8E,60:e3:27:53:dc:8e,9,11b/g/n,39
-ani,90:f6:52:52:36:b4,4,11b/g/n,39
-TP-Link_63B6,b0:be:76:6a:63:b6,11,11b/g/n,29
-dlink77,c0:4a:00:6f:18:06,6,11b/g/n,24
-WI-FI,d8:50:e6:f2:2b:d0,1,11b/g/n,20
-65,ec:43:f6:07:99:68,1,11b/g/n,15
-RT-WiFi_0794,70:2e:22:63:07:94,3,11b/g/n,5
-DeMoro,fc:f5:28:61:76:f4,1,11b/g/n,5
-DIR-620,90:94:e4:f3:3e:44,1,11b/g/n,5
-Shoter,bc:f6:85:cb:de:58,6,11b/g/n,0
-VVS,e8:de:27:5c:52:50,11,11b/g/n,0
+TP-LINK_53DC8E,60:e3:27:53:dc:8e,9,11b/g/n,44
+dlink77,c0:4a:00:6f:18:06,6,11b/g/n,34
+VVS,e8:de:27:5c:52:50,11,11b/g/n,29
+ani,90:f6:52:52:36:b4,4,11b/g/n,29
+RT-WiFi_0794,70:2e:22:63:07:94,3,11b/g/n,20
+TP-Link_63B6,b0:be:76:6a:63:b6,11,11b/g/n,20
+VVS VIP,34:ce:00:5d:0d:a9,11,11b/g/n,10
+DeMoro,fc:f5:28:61:76:f4,1,11b/g/n,10
+WI-FI,d8:50:e6:f2:2b:d0,1,11b/g/n,5
+DIR-620,90:94:e4:f3:3e:44,1,11b/g/n,0
