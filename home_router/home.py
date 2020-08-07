@@ -187,10 +187,45 @@ def define_rssi_for_hosts(output):
     else:
         return -1
 
-def find_list_of_better_channel_numbers(current_channel, neighbor_networks, current_delay, currenr_rssi):
-    pass
+
+def find_list_of_better_channel_numbers(current_channel, neighbor_networks:dict, current_rssi, current_ping_result:dict,
+                                        mac_address_table, router_ip):
+    preferred_channels = {}
+    for item in range(1, 14):
+        item = str(item)
+        if item in neighbor_networks.keys():
+            summary_neighbor_quality = sum([int(x) for x in neighbor_networks[item]])
+        else:
+            summary_neighbor_quality = 0
+        preferred_channels[item] = summary_neighbor_quality
+    best_channel = sorted(['1', '6', '11'], key=lambda x: preferred_channels[x])
+    sort_best_channels = []
+    for item in best_channel:
+        if 50 > preferred_channels[item] and item != current_channel:
+            sort_best_channels = [item]
+            break
+        else:
+            del preferred_channels[item]
+    else:
+        del preferred_channels[str(current_channel)]
+        sort_best_channels = sorted(preferred_channels.keys(), key=lambda x: preferred_channels[x])
+    # to define new rssi and expected value
+    # TODO write change channel number here
+    command_to_router = ['show associations\n']
+    output = telnet_with_router(router_ip, command_to_router, sleep_delay=3)
+
+    new_rssi = define_rssi_for_hosts(output)
+    new_ping_result = ping_remote_hosts(set(current_ping_result.keys()), router_ip, count_ping_packet=5)
+    # TODO change ping result funcion to return expected value
+    for ip in new_ping_result.keys():
+        print(f'expected value {mac_addresses[key_from_value(arp_table, ip)[0]]} = '
+              f'{round(ping_delay_analyze(ping_result[ip], count), 2)}')
+
+
     # TODO write here list of better channel numbers and try to change channel number -if rssi or ping dalay would be
     # worse - restore old configuration
+
+
 if __name__ == '__main__':
     router_ip = ipaddress.ip_address('192.168.1.1')
     mac_addresses = {'d4:12:43:0e:67:71': 'yandex_station',
@@ -233,8 +268,10 @@ if __name__ == '__main__':
     count = 30
     ping_result = ping_remote_hosts(set([arp_table[mac] for mac in mac_addresses.keys() if mac in arp_table.keys()]),
                                     router_ip, count)
+    # TODO current ping result should be a list - not pront function
     for ip in ping_result.keys():
         print(f'expected value {mac_addresses[key_from_value(arp_table, ip)[0]]} = '
               f'{round(ping_delay_analyze(ping_result[ip], count), 2)}')
     # if yandex station and my notebook rssi >70 and expected value > 100 ms -> time to try another channel number
     # TODO write here code for this condition
+    find_list_of_better_channel_numbers(current_channel, neighbor_network_dict, rssi, ping_result, arp_table, router_ip)
